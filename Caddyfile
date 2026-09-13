@@ -1,0 +1,28 @@
+{
+  auto_https on
+}
+
+{$LYC_DOMAIN} {
+  encode gzip zstd
+
+  @api path /v1/*
+  handle @api {
+    reverse_proxy lyc-server:8080
+  }
+
+  @sensitive path /server.js /migrate.js /migrate.sql /docker-compose.yml /.env /.env.* /scripts/* /README*
+  respond @sensitive 404
+
+  handle {
+    root * /srv/public
+    try_files {path} /index.html
+    file_server
+  }
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "no-referrer"
+  }
+}

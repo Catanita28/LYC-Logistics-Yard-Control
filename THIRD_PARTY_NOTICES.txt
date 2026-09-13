@@ -1,0 +1,4 @@
+LYC includes a bundled QR encoder derived from Kazuhiko Arase's QRCode.js implementation.
+The bundled implementation is used under the MIT License.
+Copyright (c) 2009 Kazuhiko Arase.
+The relevant attribution/license text is retained in public/index.html.

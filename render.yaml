@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: lyc-logistics-yard-control
+    runtime: docker
+    plan: free
+    region: ohio
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: sh -c 'node migrate.js && node server.js'
+    healthCheckPath: /v1/health
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lyc-postgres
+          property: connectionString
+      - key: LYC_SESSION_TTL_SECONDS
+        value: "43200"
+      - key: LYC_GUARD_CREDENTIALS_JSON
+        sync: false
+      - key: LYC_S3_BUCKET
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: LYC_S3_ENDPOINT
+        sync: false
+
+databases:
+  - name: lyc-postgres
+    plan: free
+    region: ohio
+    postgresMajorVersion: "17"
+    databaseName: lyc

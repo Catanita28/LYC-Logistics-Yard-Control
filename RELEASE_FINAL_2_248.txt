@@ -1,0 +1,21 @@
+LYC — LOGISTICS YARD CONTROL
+RELEASE FINAL 2.248
+Fecha: 2026-09-13
+
+Esta es la versión final del paquete de software preparada para instalación.
+
+Validación local del paquete:
+- Smoke test: 91/91 PASS
+- server.js: PASS
+- migrate.js: PASS
+- smoke-test.js: PASS
+- production-preflight.js: PASS (validación estructural; sin secretos reales)
+- Service Worker: PASS
+- Frontend público aislado: PASS
+- PWA/manifest/iconos: PASS
+
+La instalación requiere datos privados del propietario/administrador:
+dominio, credenciales de PostgreSQL, los 8 guardias/PIN, y almacenamiento S3.
+Esos datos NO están incluidos en el paquete.
+
+No se deben inventar ni publicar credenciales reales.

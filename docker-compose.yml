@@ -1,0 +1,75 @@
+services:
+  lyc-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lyc
+      POSTGRES_USER: lyc
+      POSTGRES_PASSWORD: ${LYC_DB_PASSWORD:?set LYC_DB_PASSWORD}
+    volumes:
+      - lyc_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lyc -d lyc"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  lyc-migrate:
+    build: .
+    restart: "no"
+    depends_on:
+      lyc-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://lyc:${LYC_DB_PASSWORD}@lyc-db:5432/lyc
+      PGSSL: disable
+      LYC_GUARD_CREDENTIALS_JSON: ${LYC_GUARD_CREDENTIALS_JSON:-}
+    command: ["node", "migrate.js"]
+
+  lyc-server:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      lyc-db:
+        condition: service_healthy
+      lyc-migrate:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://lyc:${LYC_DB_PASSWORD}@lyc-db:5432/lyc
+      LYC_SESSION_TTL_SECONDS: ${LYC_SESSION_TTL_SECONDS:-43200}
+      LYC_S3_BUCKET: ${LYC_S3_BUCKET:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      LYC_S3_ENDPOINT: ${LYC_S3_ENDPOINT:-}
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  lyc-web:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      lyc-server:
+        condition: service_healthy
+    environment:
+      LYC_DOMAIN: ${LYC_DOMAIN:?set LYC_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./public:/srv/public:ro
+      - lyc_caddy_data:/data
+      - lyc_caddy_config:/config
+
+volumes:
+  lyc_pgdata:
+  lyc_caddy_data:
+  lyc_caddy_config:

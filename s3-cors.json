@@ -1,0 +1,11 @@
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["https://YOUR-LYC-DOMAIN"],
+      "AllowedMethods": ["PUT"],
+      "AllowedHeaders": ["Content-Type", "x-amz-meta-sha256"],
+      "ExposeHeaders": ["ETag"],
+      "MaxAgeSeconds": 600
+    }
+  ]
+}
