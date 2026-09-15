@@ -1,12 +1,26 @@
+# Secrets and local environment
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Local/runtime data
 node_modules
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.git
-.github
-.env
-.env.*
-!.env.example
-uploads
-.DS_Store
 *.log
+
+# Development backups and packaged artifacts
+*.bak
+*.bak_*
+*.zip
+
+# Python/editor/system noise
+__pycache__
+.DS_Store
+.vscode
+.idea
+
+# Keep production frontend isolated under /public
+backend
+scripts
+README*
