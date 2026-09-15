@@ -1,0 +1,28 @@
+name: LYC CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check server.js
+          node --check migrate.js
+          node --check scripts/smoke-test.js
+          node --check scripts/render-preflight.js
+      - name: LYC smoke test
+        run: node scripts/smoke-test.js
